@@ -33,12 +33,35 @@
     "ts-jest": "^29.1.0",
     "typescript": "^5.3.3"
   },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "gemini",
+    "google-gemini",
+    "ai",
+    "llm",
+    "claude-desktop",
+    "cursor",
+    "windsurf",
+    "typescript"
+  ],
+  "author": "Ali Argun",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aliargun/mcp-server-gemini.git"
   },
+  "bugs": {
+    "url": "https://github.com/aliargun/mcp-server-gemini/issues"
+  },
+  "homepage": "https://github.com/aliargun/mcp-server-gemini#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
   ]
 }
