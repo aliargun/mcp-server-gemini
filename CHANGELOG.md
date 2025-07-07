@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2025-07-08
+
+### Changed
+- Cleaned up repository by removing legacy WebSocket implementation files
+- Removed unused dependencies (ws and @types/ws)
+- Streamlined codebase to only include stdio-based MCP implementation
+
+### Security
+- Performed comprehensive security audit
+- Verified no exposed secrets or API keys
+- Confirmed all dependencies are vulnerability-free
+- API keys only accessed via environment variables
+
+### Removed
+- `src/server.ts` - Legacy WebSocket server
+- `src/index.ts` - Old entry point
+- `src/handlers.ts` - Unused handler functions
+- `src/protocol.ts` - Legacy protocol definitions
+- `src/stdio-server.ts` - Superseded by enhanced-stdio-server
+- WebSocket dependencies
+
 ## [4.1.0] - 2025-07-07
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "mcp-server-gemini",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "State-of-the-art MCP server for Google Gemini API with all latest features",
   "main": "dist/enhanced-stdio-server.js",
   "bin": {
@@ -10,7 +10,7 @@
     "build": "tsc",
     "prepare": "npm run build",
     "start": "node dist/enhanced-stdio-server.js",
-    "dev": "ts-node src/index.ts",
+    "dev": "ts-node src/enhanced-stdio-server.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/**/*.ts",
@@ -18,13 +18,11 @@
   },
   "type": "module",
   "dependencies": {
-    "@google/genai": "^1.8.0",
-    "ws": "^8.16.0"
+    "@google/genai": "^1.8.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
     "@types/node": "^20.10.5",
-    "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
