@@ -4,13 +4,14 @@ This guide explains how to use all the available tools in the Gemini MCP Server 
 
 ## Available Tools Overview
 
-Once the Gemini MCP Server is configured in Claude Desktop, you can access these 5 powerful tools:
+Once the Gemini MCP Server is configured in Claude Desktop, you can access these 6 powerful tools:
 
 1. **generate_text** - Advanced text generation with all Gemini features
 2. **analyze_image** - Vision analysis for images
 3. **count_tokens** - Token counting for cost estimation
 4. **list_models** - List available Gemini models
 5. **embed_text** - Generate text embeddings
+6. **get_help** - Get help and usage information directly in Claude
 
 📋 **[See Complete Parameters Reference](PARAMETERS_REFERENCE.md)** for detailed parameter documentation with all available options and examples.
 
@@ -91,6 +92,28 @@ Enable grounding for latest best practices."
 "Create semantic embeddings using Gemini for similarity search"
 "Get embeddings for these product descriptions using text-embedding-004"
 ```
+
+### 6. Help Tool (`get_help`)
+
+**Usage:**
+```
+"Get help on using Gemini MCP server"
+"Get help on tools"
+"Get help on models"
+"Get help on parameters"
+"Get help on examples"
+"Show me a quick start guide"
+```
+
+**Available Topics:**
+- `overview` - General introduction and features
+- `tools` - Detailed information about each tool
+- `models` - Available models and selection guide
+- `parameters` - Complete parameter reference
+- `examples` - Usage examples for common tasks
+- `quick-start` - Quick start guide
+
+This tool is perfect for learning how to use the MCP server without leaving Claude Desktop!
 
 ## Advanced Features
 

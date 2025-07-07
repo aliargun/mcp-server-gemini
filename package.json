@@ -1,6 +1,6 @@
 {
   "name": "mcp-server-gemini",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "State-of-the-art MCP server for Google Gemini API with all latest features",
   "main": "dist/enhanced-stdio-server.js",
   "bin": {
