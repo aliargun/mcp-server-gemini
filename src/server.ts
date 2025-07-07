@@ -32,7 +32,7 @@ export class MCPServer {
     
     // Start the server
     this.httpServer.listen(port, () => {
-      console.log(`MCP Server started on port ${port}`);
+      console.error(`MCP Server started on port ${port}`);
     });
   }
 
@@ -115,7 +115,7 @@ export class MCPServer {
     });
 
     ws.on('error', (error: Error) => {
-      console.error('WebSocket error:', error);
+      console.error('WebSocket error:', error.message);
       this.logError('connection', error, state);
     });
 
@@ -157,7 +157,7 @@ export class MCPServer {
   }
 
   private handleServerError(error: Error): void {
-    console.error('WebSocket server error:', error);
+    console.error('WebSocket server error:', error.message);
     this.logError('server', error);
   }
 
@@ -175,7 +175,7 @@ export class MCPServer {
       // Check for stale connections (no message in 5 minutes)
       const timeSinceLastMessage = (now.getTime() - state.lastMessageAt.getTime()) / 1000;
       if (timeSinceLastMessage > 300) { // 5 minutes
-        console.warn(`Closing stale connection from ${state.ip}`);
+        console.error(`Closing stale connection from ${state.ip}`);
         ws.close(1000, 'Connection timeout');
       }
     });
@@ -199,7 +199,7 @@ export class MCPServer {
       } : undefined
     };
     
-    console.error('Error Log:', JSON.stringify(errorLog, null, 2));
+    console.error(JSON.stringify(errorLog));
   }
 
   broadcast(notification: NotificationMessage): void {
