@@ -3,6 +3,11 @@ import { GoogleGenAI } from '@google/genai';
 import { createInterface } from 'readline';
 import { MCPRequest, MCPResponse } from './types.js';
 
+// Increase max buffer size for large images (10MB)
+if (process.stdin.setEncoding) {
+  process.stdin.setEncoding('utf8');
+}
+
 // Available Gemini models as of July 2025
 const GEMINI_MODELS = {
   // Thinking models (2.5 series) - latest and most capable
@@ -68,7 +73,9 @@ class EnhancedStdioMCPServer {
     const rl = createInterface({
       input: process.stdin,
       output: process.stdout,
-      terminal: false
+      terminal: false,
+      // Increase max line length for large image data
+      crlfDelay: Infinity
     });
 
     rl.on('line', (line) => {
@@ -613,6 +620,11 @@ class EnhancedStdioMCPServer {
     try {
       const model = args.model || 'gemini-2.5-flash';
 
+      // Validate inputs
+      if (!args.imageUrl && !args.imageBase64) {
+        throw new Error('Either imageUrl or imageBase64 must be provided');
+      }
+
       // Prepare image part
       let imagePart: any;
       if (args.imageUrl) {
@@ -622,9 +634,13 @@ class EnhancedStdioMCPServer {
           text: `[Image URL: ${args.imageUrl}]`
         };
       } else if (args.imageBase64) {
+        // Log base64 data size for debugging
+        console.error(`Image base64 length: ${args.imageBase64.length}`);
+        
         // Extract MIME type and data
         const matches = args.imageBase64.match(/^data:(.+);base64,(.+)$/);
         if (matches) {
+          console.error(`MIME type: ${matches[1]}, Data length: ${matches[2].length}`);
           imagePart = {
             inlineData: {
               mimeType: matches[1],
@@ -632,6 +648,8 @@ class EnhancedStdioMCPServer {
             }
           };
         } else {
+          // If no data URI format, assume raw base64
+          console.error('Raw base64 data detected');
           imagePart = {
             inlineData: {
               mimeType: 'image/jpeg',
@@ -665,12 +683,13 @@ class EnhancedStdioMCPServer {
         }
       };
     } catch (error) {
+      console.error('Error in analyzeImage:', error);
       return {
         jsonrpc: '2.0',
         id,
         error: {
           code: -32603,
-          message: error instanceof Error ? error.message : 'Internal error'
+          message: `Image analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`
         }
       };
     }

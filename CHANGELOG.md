@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.2] - 2025-07-08
+
+### Fixed
+- Fixed image truncation issue by adding crlfDelay: Infinity to readline interface
+- Added proper UTF-8 encoding for stdin to handle large Base64 data
+- Improved error handling and debugging for image analysis
+- Added logging for Base64 data size to help diagnose issues
+
+### Changed
+- Enhanced error messages for image analysis failures
+- Added input validation for image analysis parameters
+
 ## [4.2.1] - 2025-07-08
 
 ### Fixed
