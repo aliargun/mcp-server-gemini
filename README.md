@@ -6,11 +6,11 @@ Model Context Protocol (MCP) server implementation that enables Claude Desktop t
 
 ## Features
 
-- Full MCP protocol support with stdio communication
-- Direct integration with Google Gemini API
-- Secure API key handling via environment variables
-- TypeScript implementation with modern ESM modules
-- Compatible with Claude Desktop and other MCP clients
+- **5 Powerful Tools**: Text generation, image analysis, token counting, model listing, and embeddings
+- **Latest Gemini Models**: Support for Gemini 2.5 series with thinking capabilities
+- **Advanced Features**: JSON mode, Google Search grounding, system instructions, conversation memory
+- **Full MCP Protocol**: Stdio communication for seamless Claude Desktop integration
+- **TypeScript & ESM**: Modern, type-safe implementation
 
 ## Quick Start
 
@@ -43,8 +43,24 @@ Model Context Protocol (MCP) server implementation that enables Claude Desktop t
 
 3. **Restart Claude Desktop**
 
+## How to Use
+
+Once configured, you can use natural language in Claude Desktop to access Gemini's capabilities:
+
+- **"Use Gemini to explain quantum computing"** - Basic text generation
+- **"Analyze this image with Gemini"** - Vision analysis
+- **"List all Gemini models"** - See available models
+- **"Count tokens for this text"** - Token estimation
+- **"Generate embeddings for semantic search"** - Text embeddings
+
+📖 **[See the complete Usage Guide](USAGE_GUIDE.md)** for detailed examples and advanced features.
+
 ## Documentation
 
+- **[Usage Guide](USAGE_GUIDE.md)** - Complete guide on using all tools and features
+- **[Parameters Reference](PARAMETERS_REFERENCE.md)** - Detailed documentation of all parameters
+- **[Quick Reference](QUICK_REFERENCE.md)** - Quick commands cheat sheet
+- **[Enhanced Features](ENHANCED_FEATURES.md)** - Detailed list of v4.0.0 capabilities
 - [Claude Desktop Setup Guide](docs/claude-desktop-setup.md) - Detailed setup instructions
 - [Examples and Usage](docs/examples.md) - Usage examples and advanced configuration
 - [Implementation Notes](docs/implementation-notes.md) - Technical implementation details
