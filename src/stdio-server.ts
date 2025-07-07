@@ -6,7 +6,6 @@ import { MCPRequest, MCPResponse } from './types.js';
 class StdioMCPServer {
   private genAI: GoogleGenAI;
   private currentModel: string = 'gemini-2.0-flash-002';
-  private buffer = '';
 
   constructor(apiKey: string) {
     this.genAI = new GoogleGenAI({ apiKey });
@@ -14,7 +13,7 @@ class StdioMCPServer {
   }
 
   private setupStdioInterface() {
-    // Handle input line by line
+    // MCP uses newline-delimited JSON for stdio transport
     const rl = createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -22,8 +21,14 @@ class StdioMCPServer {
     });
 
     rl.on('line', (line) => {
-      this.buffer += line + '\n';
-      this.tryParseMessage();
+      if (line.trim()) {
+        try {
+          const request: MCPRequest = JSON.parse(line);
+          this.handleRequest(request);
+        } catch (error) {
+          console.error('Failed to parse message:', error);
+        }
+      }
     });
 
     process.stdin.on('error', (err) => {
@@ -31,39 +36,8 @@ class StdioMCPServer {
     });
   }
 
-  private tryParseMessage() {
-    // Look for Content-Length header
-    const headerMatch = this.buffer.match(/Content-Length: (\d+)\r?\n\r?\n/);
-    if (!headerMatch) return;
-
-    const contentLength = parseInt(headerMatch[1], 10);
-    const headerLength = headerMatch[0].length;
-    const totalLength = headerMatch.index! + headerLength + contentLength;
-
-    if (this.buffer.length < totalLength) return;
-
-    // Extract the JSON message
-    const messageStart = headerMatch.index! + headerLength;
-    const messageEnd = messageStart + contentLength;
-    const message = this.buffer.slice(messageStart, messageEnd);
-    
-    // Remove processed message from buffer
-    this.buffer = this.buffer.slice(totalLength);
-
-    try {
-      const request: MCPRequest = JSON.parse(message);
-      this.handleRequest(request);
-    } catch (error) {
-      console.error('Failed to parse message:', error);
-    }
-
-    // Check if there are more messages in the buffer
-    if (this.buffer.length > 0) {
-      this.tryParseMessage();
-    }
-  }
-
   private async handleRequest(request: MCPRequest) {
+    console.error('Handling request:', request.method);
     try {
       let response: MCPResponse;
 
@@ -179,12 +153,9 @@ class StdioMCPServer {
   }
 
   private sendResponse(response: MCPResponse) {
+    // MCP uses newline-delimited JSON for stdio transport
     const responseStr = JSON.stringify(response);
-    const responseBytes = Buffer.from(responseStr, 'utf-8');
-    
-    // Send with Content-Length header
-    process.stdout.write(`Content-Length: ${responseBytes.length}\r\n\r\n`);
-    process.stdout.write(responseBytes);
+    process.stdout.write(responseStr + '\n');
   }
 }
 
