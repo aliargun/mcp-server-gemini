@@ -525,7 +525,8 @@ class EnhancedStdioMCPServer {
         contents: [{
           parts: [{
             text: args.prompt
-          }]
+          }],
+          role: 'user'
         }],
         generationConfig
       };
@@ -646,7 +647,8 @@ class EnhancedStdioMCPServer {
           parts: [
             { text: args.prompt },
             imagePart
-          ]
+          ],
+          role: 'user'
         }]
       });
 
@@ -683,7 +685,8 @@ class EnhancedStdioMCPServer {
         contents: [{
           parts: [{
             text: args.text
-          }]
+          }],
+          role: 'user'
         }]
       });
 
