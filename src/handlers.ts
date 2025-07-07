@@ -1,4 +1,4 @@
-import { GenerativeModel } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { 
   GenerateRequest, 
   GenerateResponse, 
@@ -8,15 +8,16 @@ import {
   StreamResponse,
   CancelRequest,
   ConfigureRequest
-} from './types';
-import { createInitializeResult, ERROR_CODES, validateRequest } from './protocol';
+} from './types.js';
+import { createInitializeResult, ERROR_CODES, validateRequest } from './protocol.js';
 import EventEmitter from 'events';
 
 export class MCPHandlers extends EventEmitter {
   private activeRequests: Map<string | number, AbortController>;
+  private currentModel: string = 'gemini-2.0-flash-002';
 
   constructor(
-    private model: GenerativeModel, 
+    private genAI: GoogleGenAI,
     private protocol: any,
     private debug: boolean = false
   ) {
@@ -50,15 +51,15 @@ export class MCPHandlers extends EventEmitter {
     this.activeRequests.set(request.id, abortController);
 
     try {
-      const result = await this.model.generateContent(
-        request.params.prompt,
-        {
+      const result = await this.genAI.models.generateContent({
+        model: this.currentModel,
+        contents: request.params.prompt,
+        config: {
           temperature: request.params.temperature,
           maxOutputTokens: request.params.maxTokens,
           stopSequences: request.params.stopSequences,
         }
-      );
-      const response = await result.response;
+      });
 
       this.activeRequests.delete(request.id);
 
@@ -67,9 +68,9 @@ export class MCPHandlers extends EventEmitter {
         id: request.id,
         result: {
           type: 'completion',
-          content: response.text(),
+          content: result.text || '',
           metadata: {
-            model: 'gemini-pro',
+            model: this.currentModel,
             provider: 'google',
             temperature: request.params.temperature,
             maxTokens: request.params.maxTokens,
@@ -95,14 +96,15 @@ export class MCPHandlers extends EventEmitter {
     this.activeRequests.set(request.id, abortController);
 
     try {
-      const stream = await this.model.generateContentStream(
-        request.params.prompt,
-        {
+      const stream = await this.genAI.models.generateContentStream({
+        model: this.currentModel,
+        contents: request.params.prompt,
+        config: {
           temperature: request.params.temperature,
           maxOutputTokens: request.params.maxTokens,
           stopSequences: request.params.stopSequences,
         }
-      );
+      });
 
       for await (const chunk of stream) {
         const response: StreamResponse = {
@@ -110,7 +112,7 @@ export class MCPHandlers extends EventEmitter {
           id: request.id,
           result: {
             type: 'stream',
-            content: chunk.text(),
+            content: chunk.text || '',
             done: false
           }
         };
@@ -169,6 +171,9 @@ export class MCPHandlers extends EventEmitter {
 
     // Update configuration
     const config = request.params.configuration;
+    if (config.model) {
+      this.currentModel = config.model;
+    }
     
     return {
       jsonrpc: '2.0',

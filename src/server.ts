@@ -1,13 +1,13 @@
-import WebSocket from 'ws';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { MCPHandlers } from './handlers';
-import { ProtocolManager } from './protocol';
-import { ERROR_CODES } from './protocol';
-import { MCPRequest, NotificationMessage, ConnectionState } from './types';
+import WebSocket, { WebSocketServer } from 'ws';
+import { GoogleGenAI } from '@google/genai';
+import { MCPHandlers } from './handlers.js';
+import { ProtocolManager } from './protocol.js';
+import { ERROR_CODES } from './protocol.js';
+import { MCPRequest, NotificationMessage, ConnectionState } from './types.js';
 import http from 'http';
 
 export class MCPServer {
-  private wss: WebSocket.Server;
+  private wss: WebSocketServer;
   private protocol: ProtocolManager;
   private handlers: MCPHandlers;
   private clients: Map<WebSocket, ConnectionState>;
@@ -15,11 +15,10 @@ export class MCPServer {
   private startTime: Date;
 
   constructor(apiKey: string, port: number = 3005) {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const genAI = new GoogleGenAI({ apiKey });
 
     this.protocol = new ProtocolManager();
-    this.handlers = new MCPHandlers(model, this.protocol);
+    this.handlers = new MCPHandlers(genAI, this.protocol);
     this.clients = new Map();
     this.startTime = new Date();
 
@@ -27,7 +26,7 @@ export class MCPServer {
     this.httpServer = http.createServer(this.handleHttpRequest.bind(this));
     
     // Create WebSocket server attached to HTTP server
-    this.wss = new WebSocket.Server({ server: this.httpServer });
+    this.wss = new WebSocketServer({ server: this.httpServer });
     
     this.setupWebSocketServer();
     
@@ -44,7 +43,7 @@ export class MCPServer {
         status: 'healthy',
         uptime: uptime,
         activeConnections: this.clients.size,
-        version: '1.0.0'
+        version: '2.0.0'
       };
       
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -99,7 +98,8 @@ export class MCPServer {
             state.initialized = true;
           }
         } catch (error) {
-          this.sendError(ws, request.id, ERROR_CODES.SERVER_NOT_INITIALIZED, error.message);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          this.sendError(ws, request.id, ERROR_CODES.SERVER_NOT_INITIALIZED, errorMessage);
           return;
         }
 
@@ -136,7 +136,7 @@ export class MCPServer {
       jsonrpc: '2.0',
       method: 'connection/established',
       params: {
-        serverVersion: '1.0.0',
+        serverVersion: '2.0.0',
         protocolVersion: '2024-11-05'
       }
     }));
@@ -148,8 +148,9 @@ export class MCPServer {
 
     if (error instanceof SyntaxError) {
       this.sendError(ws, null, ERROR_CODES.PARSE_ERROR, 'Invalid JSON');
-    } else if (error.code && ERROR_CODES[error.code]) {
-      this.sendError(ws, null, error.code, error.message);
+    } else if (error && typeof error === 'object' && 'code' in error && typeof error.code === 'number') {
+      const errorMessage = 'message' in error && typeof error.message === 'string' ? error.message : 'Unknown error';
+      this.sendError(ws, null, error.code, errorMessage);
     } else {
       this.sendError(ws, null, ERROR_CODES.INTERNAL_ERROR, 'Internal server error');
     }

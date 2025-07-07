@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(rm:*)",
+      "mcp__zen__chat",
+      "Bash(grep:*)",
+      "Bash(true)",
+      "Bash(find:*)",
+      "Bash(npm run build:*)"
+    ],
+    "deny": []
+  }
+}
