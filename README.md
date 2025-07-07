@@ -1,5 +1,7 @@
 # Gemini MCP Server
 
+[![smithery badge](https://smithery.ai/badge/mcp-server-gemini)](https://smithery.ai/server/mcp-server-gemini)
+
 Model Context Protocol (MCP) server implementation that enables Claude Desktop to interact with Google's Gemini AI models.
 
 ## Features
