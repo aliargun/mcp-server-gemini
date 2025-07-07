@@ -1,15 +1,15 @@
 {
   "name": "mcp-server-gemini",
-  "version": "3.0.0",
-  "description": "MCP server for Google Gemini API",
-  "main": "dist/stdio-server.js",
+  "version": "4.0.0",
+  "description": "State-of-the-art MCP server for Google Gemini API with all latest features",
+  "main": "dist/enhanced-stdio-server.js",
   "bin": {
-    "mcp-server-gemini": "./dist/stdio-server.js"
+    "mcp-server-gemini": "./dist/enhanced-stdio-server.js"
   },
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
-    "start": "node dist/stdio-server.js",
+    "start": "node dist/enhanced-stdio-server.js",
     "dev": "ts-node src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch",

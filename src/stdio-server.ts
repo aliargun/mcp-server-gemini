@@ -5,7 +5,7 @@ import { MCPRequest, MCPResponse } from './types.js';
 
 class StdioMCPServer {
   private genAI: GoogleGenAI;
-  private currentModel: string = 'gemini-2.0-flash-002';
+  private currentModel: string = 'gemini-1.5-flash';
 
   constructor(apiKey: string) {
     this.genAI = new GoogleGenAI({ apiKey });
