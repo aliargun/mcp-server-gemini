@@ -127,7 +127,33 @@ class StdioMCPServer {
           }
           break;
 
+        case 'resources/list':
+          response = {
+            jsonrpc: '2.0',
+            id: request.id,
+            result: {
+              resources: []
+            }
+          };
+          break;
+
+        case 'prompts/list':
+          response = {
+            jsonrpc: '2.0',
+            id: request.id,
+            result: {
+              prompts: []
+            }
+          };
+          break;
+
         default:
+          // Check if it's a notification (no id field)
+          if (!('id' in request)) {
+            console.error(`Notification received: ${(request as any).method}`);
+            return; // Don't send response for notifications
+          }
+          
           response = {
             jsonrpc: '2.0',
             id: request.id,
