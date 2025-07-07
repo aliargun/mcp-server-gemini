@@ -4,11 +4,11 @@ Model Context Protocol (MCP) server implementation that enables Claude Desktop t
 
 ## Features
 
-- Full MCP protocol support
-- Real-time response streaming
-- Secure API key handling
-- Configurable model parameters
-- TypeScript implementation
+- Full MCP protocol support with stdio communication
+- Direct integration with Google Gemini API
+- Secure API key handling via environment variables
+- TypeScript implementation with modern ESM modules
+- Compatible with Claude Desktop and other MCP clients
 
 ## Quick Start
 
@@ -28,6 +28,7 @@ Model Context Protocol (MCP) server implementation that enables Claude Desktop t
      {
        "mcpServers": {
          "gemini": {
+           "type": "stdio",
            "command": "npx",
            "args": ["-y", "github:aliargun/mcp-server-gemini"],
            "env": {
@@ -69,13 +70,15 @@ Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md).
 ## Common Issues
 
 1. **Connection Issues**
-   - Check if port 3005 is available
+   - Ensure Claude Desktop is properly restarted
+   - Check the logs at `~/Library/Logs/Claude/mcp-server-gemini.log` (Mac)
    - Verify internet connection
    - See [Troubleshooting Guide](docs/troubleshooting.md)
 
 2. **API Key Problems**
    - Verify API key is correct
-   - Check permissions
+   - Check API key has proper permissions
+   - Ensure the key is set in the environment variable
    - See [Setup Guide](docs/claude-desktop-setup.md)
 
 ## Security
