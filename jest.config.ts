@@ -1,17 +1,28 @@
-import type { Config } from '@jest/types';
+import type { JestConfigWithTsJest } from 'ts-jest';
 
-const config: Config.InitialOptions = {
-  preset: 'ts-jest',
+const jestConfig: JestConfigWithTsJest = {
+  preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  roots: ['<rootDir>/tests'],
+  testMatch: ['**/?(*.)+(spec|test).ts'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   transform: {
-    '^.+\\.ts$': 'ts-jest'
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      {
+        useESM: true,
+        tsconfig: 'tsconfig.json',
+      },
+    ],
+  },
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov'],
   coveragePathIgnorePatterns: ['/node_modules/', '/__tests__/'],
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts']
 };
+
+export default jestConfig;
