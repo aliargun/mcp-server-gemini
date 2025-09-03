@@ -12,61 +12,92 @@ if (process.stdin.setEncoding) {
 const GEMINI_MODELS = {
   // Thinking models (2.5 series) - latest and most capable
   'gemini-2.5-pro': {
-    description: 'Most capable thinking model, best for complex reasoning and coding',
-    features: ['thinking', 'function_calling', 'json_mode', 'grounding', 'system_instructions'],
+    description:
+      'Most capable thinking model, best for complex reasoning and coding',
+    features: [
+      'thinking',
+      'function_calling',
+      'json_mode',
+      'grounding',
+      'system_instructions',
+    ],
     contextWindow: 2000000, // 2M tokens
-    thinking: true
+    thinking: true,
   },
   'gemini-2.5-flash': {
     description: 'Fast thinking model with best price/performance ratio',
-    features: ['thinking', 'function_calling', 'json_mode', 'grounding', 'system_instructions'],
+    features: [
+      'thinking',
+      'function_calling',
+      'json_mode',
+      'grounding',
+      'system_instructions',
+    ],
     contextWindow: 1000000, // 1M tokens
-    thinking: true
+    thinking: true,
   },
   'gemini-2.5-flash-lite': {
-    description: 'Ultra-fast, cost-efficient thinking model for high-throughput tasks',
-    features: ['thinking', 'function_calling', 'json_mode', 'system_instructions'],
+    description:
+      'Ultra-fast, cost-efficient thinking model for high-throughput tasks',
+    features: [
+      'thinking',
+      'function_calling',
+      'json_mode',
+      'system_instructions',
+    ],
     contextWindow: 1000000,
-    thinking: true
+    thinking: true,
   },
-  
+
   // 2.0 series
   'gemini-2.0-flash': {
     description: 'Fast, efficient model with 1M context window',
-    features: ['function_calling', 'json_mode', 'grounding', 'system_instructions'],
-    contextWindow: 1000000
+    features: [
+      'function_calling',
+      'json_mode',
+      'grounding',
+      'system_instructions',
+    ],
+    contextWindow: 1000000,
   },
   'gemini-2.0-flash-lite': {
     description: 'Most cost-efficient model for simple tasks',
     features: ['function_calling', 'json_mode', 'system_instructions'],
-    contextWindow: 1000000
+    contextWindow: 1000000,
   },
   'gemini-2.0-pro-experimental': {
     description: 'Experimental model with 2M context, excellent for coding',
-    features: ['function_calling', 'json_mode', 'grounding', 'system_instructions'],
-    contextWindow: 2000000
+    features: [
+      'function_calling',
+      'json_mode',
+      'grounding',
+      'system_instructions',
+    ],
+    contextWindow: 2000000,
   },
-  
+
   // Legacy models (for compatibility)
   'gemini-1.5-pro': {
     description: 'Previous generation pro model',
     features: ['function_calling', 'json_mode', 'system_instructions'],
-    contextWindow: 2000000
+    contextWindow: 2000000,
   },
   'gemini-1.5-flash': {
     description: 'Previous generation fast model',
     features: ['function_calling', 'json_mode', 'system_instructions'],
-    contextWindow: 1000000
-  }
+    contextWindow: 1000000,
+  },
 };
 
 class EnhancedStdioMCPServer {
   private genAI: GoogleGenAI;
   private conversations: Map<string, any[]> = new Map();
-  
-  constructor(apiKey: string) {
-    this.genAI = new GoogleGenAI({ apiKey });
+
+  // Allow dependency injection of the GoogleGenAI client for testability
+  constructor(apiKey: string, genAI?: GoogleGenAI) {
+    this.genAI = genAI ?? new GoogleGenAI({ apiKey });
     this.setupStdioInterface();
+    console.error('Server ready and listening on stdio.');
   }
 
   private setupStdioInterface() {
@@ -75,7 +106,7 @@ class EnhancedStdioMCPServer {
       output: process.stdout,
       terminal: false,
       // Increase max line length for large image data
-      crlfDelay: Infinity
+      crlfDelay: Infinity,
     });
 
     rl.on('line', (line) => {
@@ -108,14 +139,14 @@ class EnhancedStdioMCPServer {
               protocolVersion: '2024-11-05',
               serverInfo: {
                 name: 'mcp-server-gemini-enhanced',
-                version: '4.1.0'
+                version: '4.1.0',
               },
               capabilities: {
                 tools: {},
                 resources: {},
-                prompts: {}
-              }
-            }
+                prompts: {},
+              },
+            },
           };
           break;
 
@@ -124,8 +155,8 @@ class EnhancedStdioMCPServer {
             jsonrpc: '2.0',
             id: request.id,
             result: {
-              tools: this.getAvailableTools()
-            }
+              tools: this.getAvailableTools(),
+            },
           };
           break;
 
@@ -138,8 +169,8 @@ class EnhancedStdioMCPServer {
             jsonrpc: '2.0',
             id: request.id,
             result: {
-              resources: this.getAvailableResources()
-            }
+              resources: this.getAvailableResources(),
+            },
           };
           break;
 
@@ -152,8 +183,8 @@ class EnhancedStdioMCPServer {
             jsonrpc: '2.0',
             id: request.id,
             result: {
-              prompts: this.getAvailablePrompts()
-            }
+              prompts: this.getAvailablePrompts(),
+            },
           };
           break;
 
@@ -162,14 +193,14 @@ class EnhancedStdioMCPServer {
             console.error(`Notification received: ${(request as any).method}`);
             return;
           }
-          
+
           response = {
             jsonrpc: '2.0',
             id: request.id,
             error: {
               code: -32601,
-              message: 'Method not found'
-            }
+              message: 'Method not found',
+            },
           };
       }
 
@@ -180,8 +211,8 @@ class EnhancedStdioMCPServer {
         id: request.id,
         error: {
           code: -32603,
-          message: error instanceof Error ? error.message : 'Internal error'
-        }
+          message: error instanceof Error ? error.message : 'Internal error',
+        },
       };
       this.sendResponse(errorResponse);
     }
@@ -197,53 +228,55 @@ class EnhancedStdioMCPServer {
           properties: {
             prompt: {
               type: 'string',
-              description: 'The prompt to send to Gemini'
+              description: 'The prompt to send to Gemini',
             },
             model: {
               type: 'string',
               description: 'Specific Gemini model to use',
               enum: Object.keys(GEMINI_MODELS),
-              default: 'gemini-2.5-flash'
+              default: 'gemini-2.5-flash',
             },
             systemInstruction: {
               type: 'string',
-              description: 'System instruction to guide model behavior'
+              description: 'System instruction to guide model behavior',
             },
             temperature: {
               type: 'number',
               description: 'Temperature for generation (0-2)',
               default: 0.7,
               minimum: 0,
-              maximum: 2
+              maximum: 2,
             },
             maxTokens: {
               type: 'number',
               description: 'Maximum tokens to generate',
-              default: 2048
+              default: 2048,
             },
             topK: {
               type: 'number',
               description: 'Top-k sampling parameter',
-              default: 40
+              default: 40,
             },
             topP: {
               type: 'number',
               description: 'Top-p (nucleus) sampling parameter',
-              default: 0.95
+              default: 0.95,
             },
             jsonMode: {
               type: 'boolean',
               description: 'Enable JSON mode for structured output',
-              default: false
+              default: false,
             },
             jsonSchema: {
               type: 'object',
-              description: 'JSON schema for structured output (when jsonMode is true)'
+              description:
+                'JSON schema for structured output (when jsonMode is true)',
             },
             grounding: {
               type: 'boolean',
-              description: 'Enable Google Search grounding for up-to-date information',
-              default: false
+              description:
+                'Enable Google Search grounding for up-to-date information',
+              default: false,
             },
             safetySettings: {
               type: 'array',
@@ -253,22 +286,32 @@ class EnhancedStdioMCPServer {
                 properties: {
                   category: {
                     type: 'string',
-                    enum: ['HARM_CATEGORY_HARASSMENT', 'HARM_CATEGORY_HATE_SPEECH', 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'HARM_CATEGORY_DANGEROUS_CONTENT']
+                    enum: [
+                      'HARM_CATEGORY_HARASSMENT',
+                      'HARM_CATEGORY_HATE_SPEECH',
+                      'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+                      'HARM_CATEGORY_DANGEROUS_CONTENT',
+                    ],
                   },
                   threshold: {
                     type: 'string',
-                    enum: ['BLOCK_NONE', 'BLOCK_ONLY_HIGH', 'BLOCK_MEDIUM_AND_ABOVE', 'BLOCK_LOW_AND_ABOVE']
-                  }
-                }
-              }
+                    enum: [
+                      'BLOCK_NONE',
+                      'BLOCK_ONLY_HIGH',
+                      'BLOCK_MEDIUM_AND_ABOVE',
+                      'BLOCK_LOW_AND_ABOVE',
+                    ],
+                  },
+                },
+              },
             },
             conversationId: {
               type: 'string',
-              description: 'ID for maintaining conversation context'
-            }
+              description: 'ID for maintaining conversation context',
+            },
           },
-          required: ['prompt']
-        }
+          required: ['prompt'],
+        },
       },
       {
         name: 'analyze_image',
@@ -278,29 +321,26 @@ class EnhancedStdioMCPServer {
           properties: {
             prompt: {
               type: 'string',
-              description: 'Question or instruction about the image'
+              description: 'Question or instruction about the image',
             },
             imageUrl: {
               type: 'string',
-              description: 'URL of the image to analyze'
+              description: 'URL of the image to analyze',
             },
             imageBase64: {
               type: 'string',
-              description: 'Base64-encoded image data (alternative to URL)'
+              description: 'Base64-encoded image data (alternative to URL)',
             },
             model: {
               type: 'string',
               description: 'Vision-capable Gemini model',
               enum: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash'],
-              default: 'gemini-2.5-flash'
-            }
+              default: 'gemini-2.5-flash',
+            },
           },
           required: ['prompt'],
-          oneOf: [
-            { required: ['imageUrl'] },
-            { required: ['imageBase64'] }
-          ]
-        }
+          oneOf: [{ required: ['imageUrl'] }, { required: ['imageBase64'] }],
+        },
       },
       {
         name: 'count_tokens',
@@ -310,17 +350,17 @@ class EnhancedStdioMCPServer {
           properties: {
             text: {
               type: 'string',
-              description: 'Text to count tokens for'
+              description: 'Text to count tokens for',
             },
             model: {
               type: 'string',
               description: 'Model to use for token counting',
               enum: Object.keys(GEMINI_MODELS),
-              default: 'gemini-2.5-flash'
-            }
+              default: 'gemini-2.5-flash',
+            },
           },
-          required: ['text']
-        }
+          required: ['text'],
+        },
       },
       {
         name: 'list_models',
@@ -331,30 +371,31 @@ class EnhancedStdioMCPServer {
             filter: {
               type: 'string',
               description: 'Filter models by capability',
-              enum: ['all', 'thinking', 'vision', 'grounding', 'json_mode']
-            }
-          }
-        }
+              enum: ['all', 'thinking', 'vision', 'grounding', 'json_mode'],
+            },
+          },
+        },
       },
       {
         name: 'embed_text',
-        description: 'Generate embeddings for text using Gemini embedding models',
+        description:
+          'Generate embeddings for text using Gemini embedding models',
         inputSchema: {
           type: 'object',
           properties: {
             text: {
               type: 'string',
-              description: 'Text to generate embeddings for'
+              description: 'Text to generate embeddings for',
             },
             model: {
               type: 'string',
               description: 'Embedding model to use',
               enum: ['text-embedding-004', 'text-multilingual-embedding-002'],
-              default: 'text-embedding-004'
-            }
+              default: 'text-embedding-004',
+            },
           },
-          required: ['text']
-        }
+          required: ['text'],
+        },
       },
       {
         name: 'get_help',
@@ -365,12 +406,19 @@ class EnhancedStdioMCPServer {
             topic: {
               type: 'string',
               description: 'Help topic to get information about',
-              enum: ['overview', 'tools', 'models', 'parameters', 'examples', 'quick-start'],
-              default: 'overview'
-            }
-          }
-        }
-      }
+              enum: [
+                'overview',
+                'tools',
+                'models',
+                'parameters',
+                'examples',
+                'quick-start',
+              ],
+              default: 'overview',
+            },
+          },
+        },
+      },
     ];
   }
 
@@ -379,33 +427,34 @@ class EnhancedStdioMCPServer {
       {
         uri: 'gemini://models',
         name: 'Available Gemini Models',
-        description: 'List of all available Gemini models and their capabilities',
-        mimeType: 'application/json'
+        description:
+          'List of all available Gemini models and their capabilities',
+        mimeType: 'application/json',
       },
       {
         uri: 'gemini://capabilities',
         name: 'API Capabilities',
         description: 'Detailed information about Gemini API capabilities',
-        mimeType: 'text/markdown'
+        mimeType: 'text/markdown',
       },
       {
         uri: 'gemini://help/usage',
         name: 'Usage Guide',
         description: 'Complete guide on using all tools and features',
-        mimeType: 'text/markdown'
+        mimeType: 'text/markdown',
       },
       {
         uri: 'gemini://help/parameters',
         name: 'Parameters Reference',
         description: 'Detailed documentation of all parameters',
-        mimeType: 'text/markdown'
+        mimeType: 'text/markdown',
       },
       {
         uri: 'gemini://help/examples',
         name: 'Examples',
         description: 'Example usage patterns for common tasks',
-        mimeType: 'text/markdown'
-      }
+        mimeType: 'text/markdown',
+      },
     ];
   }
 
@@ -418,14 +467,14 @@ class EnhancedStdioMCPServer {
           {
             name: 'code',
             description: 'Code to review',
-            required: true
+            required: true,
           },
           {
             name: 'language',
             description: 'Programming language',
-            required: false
-          }
-        ]
+            required: false,
+          },
+        ],
       },
       {
         name: 'explain_with_thinking',
@@ -434,14 +483,14 @@ class EnhancedStdioMCPServer {
           {
             name: 'topic',
             description: 'Topic to explain',
-            required: true
+            required: true,
           },
           {
             name: 'level',
             description: 'Explanation level (beginner/intermediate/expert)',
-            required: false
-          }
-        ]
+            required: false,
+          },
+        ],
       },
       {
         name: 'creative_writing',
@@ -450,20 +499,20 @@ class EnhancedStdioMCPServer {
           {
             name: 'prompt',
             description: 'Writing prompt',
-            required: true
+            required: true,
           },
           {
             name: 'style',
             description: 'Writing style',
-            required: false
+            required: false,
           },
           {
             name: 'length',
             description: 'Desired length',
-            required: false
-          }
-        ]
-      }
+            required: false,
+          },
+        ],
+      },
     ];
   }
 
@@ -473,30 +522,30 @@ class EnhancedStdioMCPServer {
     switch (name) {
       case 'generate_text':
         return await this.generateText(request.id, args);
-      
+
       case 'analyze_image':
         return await this.analyzeImage(request.id, args);
-      
+
       case 'count_tokens':
         return await this.countTokens(request.id, args);
-      
+
       case 'list_models':
         return this.listModels(request.id, args);
-      
+
       case 'embed_text':
         return await this.embedText(request.id, args);
-      
+
       case 'get_help':
         return this.getHelp(request.id, args);
-      
+
       default:
         return {
           jsonrpc: '2.0',
           id: request.id,
           error: {
             code: -32601,
-            message: `Unknown tool: ${name}`
-          }
+            message: `Unknown tool: ${name}`,
+          },
         };
     }
   }
@@ -505,7 +554,7 @@ class EnhancedStdioMCPServer {
     try {
       const model = args.model || 'gemini-2.5-flash';
       const modelInfo = GEMINI_MODELS[model as keyof typeof GEMINI_MODELS];
-      
+
       if (!modelInfo) {
         throw new Error(`Unknown model: ${model}`);
       }
@@ -515,7 +564,7 @@ class EnhancedStdioMCPServer {
         temperature: args.temperature || 0.7,
         maxOutputTokens: args.maxTokens || 2048,
         topK: args.topK || 40,
-        topP: args.topP || 0.95
+        topP: args.topP || 0.95,
       };
 
       // Add JSON mode if requested
@@ -529,21 +578,27 @@ class EnhancedStdioMCPServer {
       // Build the request
       const requestBody: any = {
         model,
-        contents: [{
-          parts: [{
-            text: args.prompt
-          }],
-          role: 'user'
-        }],
-        generationConfig
+        contents: [
+          {
+            parts: [
+              {
+                text: args.prompt,
+              },
+            ],
+            role: 'user',
+          },
+        ],
+        generationConfig,
       };
 
       // Add system instruction if provided
       if (args.systemInstruction) {
         requestBody.systemInstruction = {
-          parts: [{
-            text: args.systemInstruction
-          }]
+          parts: [
+            {
+              text: args.systemInstruction,
+            },
+          ],
         };
       }
 
@@ -554,9 +609,11 @@ class EnhancedStdioMCPServer {
 
       // Add grounding if requested and supported
       if (args.grounding && modelInfo.features.includes('grounding')) {
-        requestBody.tools = [{
-          googleSearch: {}
-        }];
+        requestBody.tools = [
+          {
+            googleSearch: {},
+          },
+        ];
       }
 
       // Handle conversation context
@@ -570,7 +627,7 @@ class EnhancedStdioMCPServer {
       // Call the API using the new SDK format
       const result = await this.genAI.models.generateContent({
         model,
-        ...requestBody
+        ...requestBody,
       });
       const text = result.text || '';
 
@@ -579,10 +636,12 @@ class EnhancedStdioMCPServer {
         const history = this.conversations.get(args.conversationId) || [];
         history.push(...requestBody.contents);
         history.push({
-          parts: [{
-            text: text
-          }],
-          role: 'model'
+          parts: [
+            {
+              text: text,
+            },
+          ],
+          role: 'model',
         });
         this.conversations.set(args.conversationId, history);
       }
@@ -591,17 +650,19 @@ class EnhancedStdioMCPServer {
         jsonrpc: '2.0',
         id,
         result: {
-          content: [{
-            type: 'text',
-            text: text
-          }],
+          content: [
+            {
+              type: 'text',
+              text: text,
+            },
+          ],
           metadata: {
             model,
             tokensUsed: result.usageMetadata?.totalTokenCount,
             candidatesCount: result.candidates?.length || 1,
-            finishReason: result.candidates?.[0]?.finishReason
-          }
-        }
+            finishReason: result.candidates?.[0]?.finishReason,
+          },
+        },
       };
     } catch (error) {
       console.error('Error in generateText:', error);
@@ -610,8 +671,8 @@ class EnhancedStdioMCPServer {
         id,
         error: {
           code: -32603,
-          message: error instanceof Error ? error.message : 'Internal error'
-        }
+          message: error instanceof Error ? error.message : 'Internal error',
+        },
       };
     }
   }
@@ -631,21 +692,23 @@ class EnhancedStdioMCPServer {
         // For URL, we'd need to fetch and convert to base64
         // For now, we'll just pass the URL as instruction
         imagePart = {
-          text: `[Image URL: ${args.imageUrl}]`
+          text: `[Image URL: ${args.imageUrl}]`,
         };
       } else if (args.imageBase64) {
         // Log base64 data size for debugging
         console.error(`Image base64 length: ${args.imageBase64.length}`);
-        
+
         // Extract MIME type and data
         const matches = args.imageBase64.match(/^data:(.+);base64,(.+)$/);
         if (matches) {
-          console.error(`MIME type: ${matches[1]}, Data length: ${matches[2].length}`);
+          console.error(
+            `MIME type: ${matches[1]}, Data length: ${matches[2].length}`
+          );
           imagePart = {
             inlineData: {
               mimeType: matches[1],
-              data: matches[2]
-            }
+              data: matches[2],
+            },
           };
         } else {
           // If no data URI format, assume raw base64
@@ -653,21 +716,20 @@ class EnhancedStdioMCPServer {
           imagePart = {
             inlineData: {
               mimeType: 'image/jpeg',
-              data: args.imageBase64
-            }
+              data: args.imageBase64,
+            },
           };
         }
       }
 
       const result = await this.genAI.models.generateContent({
         model,
-        contents: [{
-          parts: [
-            { text: args.prompt },
-            imagePart
-          ],
-          role: 'user'
-        }]
+        contents: [
+          {
+            parts: [{ text: args.prompt }, imagePart],
+            role: 'user',
+          },
+        ],
       });
 
       const text = result.text || '';
@@ -676,11 +738,13 @@ class EnhancedStdioMCPServer {
         jsonrpc: '2.0',
         id,
         result: {
-          content: [{
-            type: 'text',
-            text: text
-          }]
-        }
+          content: [
+            {
+              type: 'text',
+              text: text,
+            },
+          ],
+        },
       };
     } catch (error) {
       console.error('Error in analyzeImage:', error);
@@ -689,8 +753,8 @@ class EnhancedStdioMCPServer {
         id,
         error: {
           code: -32603,
-          message: `Image analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-        }
+          message: `Image analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        },
       };
     }
   }
@@ -698,30 +762,36 @@ class EnhancedStdioMCPServer {
   private async countTokens(id: any, args: any): Promise<MCPResponse> {
     try {
       const model = args.model || 'gemini-2.5-flash';
-      
+
       const result = await this.genAI.models.countTokens({
         model,
-        contents: [{
-          parts: [{
-            text: args.text
-          }],
-          role: 'user'
-        }]
+        contents: [
+          {
+            parts: [
+              {
+                text: args.text,
+              },
+            ],
+            role: 'user',
+          },
+        ],
       });
 
       return {
         jsonrpc: '2.0',
         id,
         result: {
-          content: [{
-            type: 'text',
-            text: `Token count: ${result.totalTokens}`
-          }],
+          content: [
+            {
+              type: 'text',
+              text: `Token count: ${result.totalTokens}`,
+            },
+          ],
           metadata: {
             tokenCount: result.totalTokens,
-            model
-          }
-        }
+            model,
+          },
+        },
       };
     } catch (error) {
       return {
@@ -729,8 +799,8 @@ class EnhancedStdioMCPServer {
         id,
         error: {
           code: -32603,
-          message: error instanceof Error ? error.message : 'Internal error'
-        }
+          message: error instanceof Error ? error.message : 'Internal error',
+        },
       };
     }
   }
@@ -740,7 +810,7 @@ class EnhancedStdioMCPServer {
     let models = Object.entries(GEMINI_MODELS);
 
     if (filter !== 'all') {
-      models = models.filter(([_, info]) => {
+      models = models.filter(([, info]) => {
         switch (filter) {
           case 'thinking':
             return 'thinking' in info && info.thinking === true;
@@ -758,50 +828,54 @@ class EnhancedStdioMCPServer {
 
     const modelList = models.map(([name, info]) => ({
       name,
-      ...info
+      ...info,
     }));
 
     return {
       jsonrpc: '2.0',
       id,
       result: {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(modelList, null, 2)
-        }],
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(modelList, null, 2),
+          },
+        ],
         metadata: {
           count: modelList.length,
-          filter
-        }
-      }
+          filter,
+        },
+      },
     };
   }
 
   private async embedText(id: any, args: any): Promise<MCPResponse> {
     try {
       const model = args.model || 'text-embedding-004';
-      
+
       const result = await this.genAI.models.embedContent({
         model,
-        contents: args.text
+        contents: args.text,
       });
 
       return {
         jsonrpc: '2.0',
         id,
         result: {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              embedding: result.embeddings?.[0]?.values || [],
-              model
-            })
-          }],
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                embedding: result.embeddings?.[0]?.values || [],
+                model,
+              }),
+            },
+          ],
           metadata: {
             model,
-            dimensions: result.embeddings?.[0]?.values?.length || 0
-          }
-        }
+            dimensions: result.embeddings?.[0]?.values?.length || 0,
+          },
+        },
       };
     } catch (error) {
       return {
@@ -809,23 +883,23 @@ class EnhancedStdioMCPServer {
         id,
         error: {
           code: -32603,
-          message: error instanceof Error ? error.message : 'Internal error'
-        }
+          message: error instanceof Error ? error.message : 'Internal error',
+        },
       };
     }
   }
 
   private async handleResourceRead(request: MCPRequest): Promise<MCPResponse> {
     const uri = request.params?.uri;
-    
+
     if (!uri) {
       return {
         jsonrpc: '2.0',
         id: request.id,
         error: {
           code: -32602,
-          message: 'Missing required parameter: uri'
-        }
+          message: 'Missing required parameter: uri',
+        },
       };
     }
 
@@ -885,7 +959,10 @@ class EnhancedStdioMCPServer {
         break;
 
       case 'gemini://help/usage':
-        content = this.getHelpContent('overview') + '\n\n' + this.getHelpContent('tools');
+        content =
+          this.getHelpContent('overview') +
+          '\n\n' +
+          this.getHelpContent('tools');
         mimeType = 'text/markdown';
         break;
 
@@ -905,8 +982,8 @@ class EnhancedStdioMCPServer {
           id: request.id,
           error: {
             code: -32602,
-            message: `Unknown resource: ${uri}`
-          }
+            message: `Unknown resource: ${uri}`,
+          },
         };
     }
 
@@ -914,12 +991,14 @@ class EnhancedStdioMCPServer {
       jsonrpc: '2.0',
       id: request.id,
       result: {
-        contents: [{
-          uri,
-          mimeType,
-          text: content
-        }]
-      }
+        contents: [
+          {
+            uri,
+            mimeType,
+            text: content,
+          },
+        ],
+      },
     };
   }
 
@@ -1211,18 +1290,21 @@ Just ask naturally:
         break;
 
       default:
-        helpContent = 'Unknown help topic. Available topics: overview, tools, models, parameters, examples, quick-start';
+        helpContent =
+          'Unknown help topic. Available topics: overview, tools, models, parameters, examples, quick-start';
     }
 
     return {
       jsonrpc: '2.0',
       id,
       result: {
-        content: [{
-          type: 'text',
-          text: helpContent
-        }]
-      }
+        content: [
+          {
+            type: 'text',
+            text: helpContent,
+          },
+        ],
+      },
     };
   }
 
@@ -1232,11 +1314,23 @@ Just ask naturally:
   }
 }
 
-// Start the server
-const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-  console.error('GEMINI_API_KEY environment variable is required');
-  process.exit(1);
+// EXPORT THE CLASS
+export { EnhancedStdioMCPServer };
+
+function main() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error('GEMINI_API_KEY environment variable is required');
+    process.exit(1);
+  }
+  new EnhancedStdioMCPServer(apiKey);
 }
 
-new EnhancedStdioMCPServer(apiKey);
+// This block ensures the server only starts when the file is executed directly
+// Use a check that is compatible with ESM
+if (
+  import.meta.url.startsWith('file:') &&
+  process.argv[1] === new URL(import.meta.url).pathname
+) {
+  main();
+}
